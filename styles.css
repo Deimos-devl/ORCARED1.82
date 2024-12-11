@@ -1,0 +1,154 @@
+/* Reset básico */
+body, h1, h2, h3, p, div, span, input, button, label {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Corpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+    line-height: 1.4;
+}
+
+/* App container */
+#app {
+    max-width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+    border: 2px solid #ff0000;
+    background-color: #2a2a2a;
+}
+
+/* Header */
+header h1 {
+    text-align: center;
+    font-size: 20px;
+    color: #ff0000;
+    margin-bottom: 5px;
+}
+
+header p {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Grid layout para duas colunas */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.coluna {
+    padding: 8px;
+    background-color: #333;
+    border-radius: 5px;
+}
+
+/* Seção de produtos */
+section h2 {
+    font-size: 16px;
+    color: #ff0000;
+    margin-bottom: 8px;
+}
+
+.produto {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #444;
+    padding: 6px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.produto:nth-child(even) {
+    background-color: #555;
+}
+
+.produto span {
+    flex: 1;
+}
+
+/* Inputs e botões */
+input[type="number"] {
+    width: 40px;
+    text-align: center;
+    border: none;
+    background-color: #555;
+    color: white;
+    border-radius: 3px;
+    padding: 3px;
+}
+
+button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #cc0000;
+}
+
+/* Frete */
+#frete h3 {
+    font-size: 14px;
+    color: #ff0000;
+    margin-bottom: 5px;
+}
+
+.frete-options {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.frete-options label {
+    font-size: 12px;
+}
+
+/* Botão principal */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#modo-calculo {
+    padding-bottom: 10px;
+}
+
+#modo-calculo h3 {
+    font-size: 14px;
+    color: #ff0000;
+    margin-bottom: 5px;
+}
+
+#modo-calculo label {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
+#gerar-orcamento {
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
+/* Rodapé */
+#deimos {
+    text-align: center;
+    font-size: 11px;
+    color: gray;
+    margin-top: 10px;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Orçamentos</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="scripts.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>CALCULADORA REDSHARK</h1>
+            <p>Selecione os produtos e quantidades:</p>
+        </header>
+
+        <main class="grid-container">
+            <section id="injetaveis" class="coluna">
+                <h2>Injetáveis</h2>
+            </section>
+            <section id="orais" class="coluna">
+                <h2>Orais</h2>
+            </section>
+        </main>
+
+        <div class="actions">
+            <div id="modo-calculo">
+                <h3>Modo de Cálculo</h3>
+                <div>
+                    <label><input type="radio" name="modo" value="normal" checked> Preço Normal</label>
+                    <label><input type="radio" name="modo" value="combo"> Combo</label>
+                </div>
+            </div>
+            <div id="frete">
+                <h3>Tipo de Frete</h3>
+                <div class="frete-options">
+                    <label><input type="radio" name="frete" value="PAC" checked> PAC (R$40,00)</label>
+                    <label><input type="radio" name="frete" value="Sedex"> Sedex (R$55,00)</label>
+                    <label><input type="radio" name="frete" value="Sedex-"> Sedex- (R$65,00)</label>
+                    <label><input type="radio" name="frete" value="Transportadora"> Transportadora (R$80,00)</label>
+                </div>
+            </div>
+            <button id="gerar-orcamento">Gerar Orçamento</button>
+        </div>
+
+        <footer>
+            <div id="deimos">DEIMOS - ORCARED v1.82</div>
+        </footer>
+    </div>
+</body>
+</html>
