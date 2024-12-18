@@ -75,29 +75,36 @@ section h2 {
     flex: 1;
 }
 
-/* Inputs e botões */
+.produto-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.produto-controls button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px;
+    cursor: pointer;
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
+}
+
+.produto-controls button:hover {
+    background-color: #cc0000;
+}
+
 input[type="number"] {
-    width: 40px;
+    width: 50px;
     text-align: center;
     border: none;
     background-color: #555;
     color: white;
     border-radius: 3px;
     padding: 3px;
-}
-
-button {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #cc0000;
 }
 
 /* Frete */
@@ -126,6 +133,9 @@ button:hover {
 }
 
 #modo-calculo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Alinha para a esquerda */
     padding-bottom: 10px;
 }
 
@@ -133,6 +143,7 @@ button:hover {
     font-size: 14px;
     color: #ff0000;
     margin-bottom: 5px;
+    margin-right: 10px; /* Adiciona um pequeno espaço entre o título e as opções */
 }
 
 #modo-calculo label {
@@ -140,9 +151,39 @@ button:hover {
     font-size: 12px;
 }
 
+#desconto {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    margin-left: 20px; /* Ajuste do espaço entre o modo e o desconto */
+}
+
+#desconto input[type="number"] {
+    width: 50px;
+    margin-left: 5px;
+    background-color: #444;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    text-align: center;
+}
+
+/* Botão para gerar orçamento */
 #gerar-orcamento {
-    padding: 8px 15px;
-    font-size: 14px;
+    padding: 15px;
+    font-size: 16px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
+}
+
+#gerar-orcamento:hover {
+    background-color: #cc0000;
 }
 
 /* Rodapé */
@@ -151,4 +192,23 @@ button:hover {
     font-size: 11px;
     color: gray;
     margin-top: 10px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .coluna {
+        margin-bottom: 20px;
+    }
+
+    .actions {
+        margin-top: 20px;
+    }
+
+    button {
+        width: auto;
+    }
 }

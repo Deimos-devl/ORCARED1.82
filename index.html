@@ -17,9 +17,11 @@
         <main class="grid-container">
             <section id="injetaveis" class="coluna">
                 <h2>Injetáveis</h2>
+                <!-- Produtos injetáveis serão adicionados dinamicamente aqui -->
             </section>
             <section id="orais" class="coluna">
                 <h2>Orais</h2>
+                <!-- Produtos orais serão adicionados dinamicamente aqui -->
             </section>
         </main>
 
@@ -27,7 +29,7 @@
             <div id="modo-calculo">
                 <h3>Modo de Cálculo</h3>
                 <div>
-                    <label><input type="radio" name="modo" value="normal" checked> Preço Normal</label>
+                    <label><input type="radio" name="modo" value="normal" checked> Preço Normal <span title="Cálculo com preços individuais de cada produto."></span></label>
                     <label><input type="radio" name="modo" value="combo"> Combo</label>
                 </div>
             </div>
@@ -40,11 +42,18 @@
                     <label><input type="radio" name="frete" value="Transportadora"> Transportadora (R$80,00)</label>
                 </div>
             </div>
+            <div id="desconto">
+                <h3>Desconto</h3>
+                <div>
+                    <label><input type="checkbox" id="aplicar-desconto"> Aplicar desconto (%) <span title="Selecione para aplicar um desconto percentual ao total."></span></label>
+                    <input type="number" id="porcentagem-desconto" value="0" min="0" max="100" disabled>
+                </div>
+            </div>
             <button id="gerar-orcamento">Gerar Orçamento</button>
         </div>
 
         <footer>
-            <div id="deimos">DEIMOS - ORCARED v1.82</div>
+            <div id="deimos">DEIMOS - ORCARED v1.90</div>
         </footer>
     </div>
 </body>

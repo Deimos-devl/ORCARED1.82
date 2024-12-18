@@ -41,101 +41,81 @@ const produtos = {
     },
 };
 
-// Formatter global para garantir consistência no formato de moeda
+// Formatter global para formatar valores monetários
 const formatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
     minimumFractionDigits: 2,
 });
 
-// Função para formatar valores e remover o espaço entre "R$" e o valor
 function formatarMoeda(valor) {
-    return formatter.format(valor).replace(/\s/g, ""); // Remove espaços no resultado
+    return formatter.format(valor).replace(/\s/g, "");
 }
 
 // Definição dos combos
 const combos = [
     {
-        nome: "Combo Bronze",
+        nome: "Combo Bronze 🥉",
         preco: 797,
         unidade: 132,
         condicao: (quantidade) => quantidade >= 6 && quantidade < 7,
         brindes: 0,
-        descricao: "a partir de 6 produtos da sua escolha",
     },
     {
-        nome: "Combo Prata",
+        nome: "Combo Prata 🥈",
         preco: 1087,
         unidade: 120,
         condicao: (quantidade) => quantidade >= 7 && quantidade < 12,
         brindes: 2,
-        descricao: "a partir de 7, leve 9 (2 produtos de brinde)",
     },
     {
-        nome: "Combo Ouro",
+        nome: "Combo Ouro 🥇",
         preco: 1687,
         unidade: 112,
         condicao: (quantidade) => quantidade >= 12 && quantidade < 16,
         brindes: 3,
-        descricao: "a partir de 12, leve 15 (3 produtos de brinde)",
     },
     {
-        nome: "Combo Diamante",
+        nome: "Combo Diamante 💎",
         preco: 2187,
         unidade: 109.35,
         condicao: (quantidade) => quantidade >= 16,
         brindes: 4,
-        descricao: "a partir de 16, leve 20 (4 produtos de brinde)",
+        adicionais: ["1 camisa", "1 coqueteleira"],
     },
 ];
 
-// Produtos excluídos dos combos
 const produtosExcluidos = ["Oxandrolona 20mg", "Primobolan", "HCG"];
 
-// Função para verificar e aplicar combos
-function aplicarCombo(produtosSelecionados) {
-    let totalProdutos = 0;
-    let produtosValidos = [];
+// Função para preencher os produtos na página
+function preencherProdutos() {
+    const injetaveisContainer = document.getElementById("injetaveis");
+    const oraisContainer = document.getElementById("orais");
 
-    // Filtrar produtos válidos para combos
-    produtosSelecionados.forEach(({ nome, quantidade }) => {
-        if (!produtosExcluidos.includes(nome)) {
-            totalProdutos += quantidade;
-            produtosValidos.push({ nome, quantidade });
-        }
-    });
-
-    // Verificar se há algum combo aplicável
-    for (const combo of combos) {
-        if (combo.condicao(totalProdutos)) {
-            return {
-                nome: combo.nome,
-                preco: combo.preco,
-                unidade: combo.unidade,
-                brindes: combo.brindes,
-                produtosValidos,
-                totalProdutos,
-            };
-        }
-    }
-
-    // Sem combo aplicável
-    return null;
-}
-
-// Renderizar os produtos
-function renderProdutos(tipo, containerId) {
-    const container = document.getElementById(containerId);
-    Object.entries(produtos[tipo]).forEach(([produto, preco]) => {
+    // Função para criar o HTML de cada produto
+    function criarProduto(nome, preco, container) {
         const div = document.createElement("div");
-        div.className = "produto";
+        div.classList.add("produto");
         div.innerHTML = `
-            <span>${produto} - ${formatarMoeda(preco)}</span>
-            <button onclick="ajustarQuantidade(this, -1)">-</button>
-            <input type="number" value="0" min="0" />
-            <button onclick="ajustarQuantidade(this, 1)">+</button>
+            <span>${nome}</span>
+            <span>${formatarMoeda(preco)}</span>
+            <div class="produto-controls">
+                <button class="btn-ajustar" onclick="ajustarQuantidade(this, -1)">-</button>
+                <input type="number" min="0" value="0">
+                <button class="btn-ajustar" onclick="ajustarQuantidade(this, 1)">+</button>
+            </div>
         `;
         container.appendChild(div);
+    }
+
+    // Adiciona produtos injetáveis
+    Object.entries(produtos.injetaveis).forEach(([nome, preco]) => {
+        criarProduto(nome, preco, injetaveisContainer);
+    });
+
+    // Adiciona produtos orais
+    Object.entries(produtos.orais).forEach(([nome, preco]) => {
+        criarProduto(nome, preco, oraisContainer);
     });
 }
 
@@ -146,68 +126,86 @@ function ajustarQuantidade(button, delta) {
     input.value = novaQuantidade;
 }
 
+// Gerenciar desconto
+const checkboxDesconto = document.getElementById("aplicar-desconto");
+const inputDesconto = document.getElementById("porcentagem-desconto");
+
+checkboxDesconto.addEventListener("change", () => {
+    inputDesconto.disabled = !checkboxDesconto.checked;
+    if (!checkboxDesconto.checked) inputDesconto.value = 0;
+});
+
 // Gerar orçamento
 document.getElementById("gerar-orcamento").addEventListener("click", () => {
     let total = 0;
     const produtosSelecionados = [];
     const tipoFrete = document.querySelector("input[name='frete']:checked").value;
     const modoCombo = document.querySelector("input[name='modo']:checked").value === "combo";
+    const desconto = parseFloat(inputDesconto.value) || 0;
 
-    // Mapear tipo de frete para exibir apenas "Sedex"
     const tipoFreteFormatado = tipoFrete.includes("Sedex") ? "Sedex" : tipoFrete;
 
-    // Injetáveis
-    document.querySelectorAll("#injetaveis .produto").forEach((div, i) => {
+    document.querySelectorAll("#injetaveis .produto, #orais .produto").forEach((div) => {
         const quantidade = parseInt(div.querySelector("input").value);
         if (quantidade > 0) {
-            const nome = Object.keys(produtos.injetaveis)[i];
-            const preco = produtos.injetaveis[nome];
+            const nome = div.querySelector("span:first-child").textContent;
+            const preco = parseFloat(div.querySelector("span:nth-child(2)").textContent.replace(/[^0-9,]/g, '').replace(',', '.'));
             produtosSelecionados.push({ nome, quantidade, preco });
         }
     });
 
-    // Orais
-    document.querySelectorAll("#orais .produto").forEach((div, i) => {
-        const quantidade = parseInt(div.querySelector("input").value);
-        if (quantidade > 0) {
-            const nome = Object.keys(produtos.orais)[i];
-            const preco = produtos.orais[nome];
-            produtosSelecionados.push({ nome, quantidade, preco });
-        }
-    });
-
+    // Validar se a quantidade de produtos corresponde a um dos combos válidos no modo combo
+    let totalProdutos = produtosSelecionados.reduce((acc, produto) => acc + produto.quantidade, 0);
     if (modoCombo) {
-        // Aplicar combos
         const comboAplicado = aplicarCombo(produtosSelecionados);
 
         if (comboAplicado) {
             total = comboAplicado.preco;
+
+            if (desconto > 0) {
+                total -= total * (desconto / 100);
+            }
+
+            const brindesMensagem = comboAplicado.brindes > 0
+                ? `+ ${comboAplicado.brindes} produtos de brinde 🎁`
+                : ''; // Remove a parte de brindes se for zero
+
+            const adicionaisMensagem = comboAplicado.adicionais && comboAplicado.adicionais.length > 0 
+                ? `+ ${comboAplicado.adicionais.join(", ")}`
+                : ''; // Só mostra os adicionais no Combo Diamante
+
             const mensagem = `
 Total de ${formatarMoeda(total + (tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80))} já com o frete incluso (${tipoFreteFormatado})
-🔥 Nossa garantia é 100% gratuita! 🔥
+🔥 Nossa garantia é 100% gratuita! 🔥 ${comboAplicado.nome}
 
 Seu novo pedido será 📦:
-${comboAplicado.produtosValidos.map(p => `${p.quantidade}x ${p.nome} (${comboAplicado.nome})`).join("\n")}
-${comboAplicado.brindes > 0 ? `+ ${comboAplicado.brindes} produtos de brinde 🎁` : ""}
+${comboAplicado.produtosValidos.map(p => `${p.quantidade}x ${p.nome}`).join("\n")}
+${brindesMensagem}
+${adicionaisMensagem}
 
 Podemos fechar o seu pedido para você garantir seu desconto? 🎁
             `.trim();
 
             navigator.clipboard.writeText(mensagem).then(() => {
                 alert("Orçamento gerado e copiado para a área de transferência!");
-                document.querySelectorAll("input[type='number']").forEach(input => input.value = 0);
+                resetarQuantidades(); // Resetar quantidades após gerar orçamento
             });
         } else {
-            alert("Nenhum combo aplicável para a seleção atual!");
+            alert("Selecione a quantidade correta de produtos para um dos combos (6, 7, 12 ou 16 produtos).");
         }
     } else {
-        // Calcular total normal
-        produtosSelecionados.forEach(({ quantidade, preco }) => {
-            total += quantidade * preco;
-        });
-        total += tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80;
+        if (totalProdutos === 6 || totalProdutos === 7 || totalProdutos === 12 || totalProdutos === 16) {
+            produtosSelecionados.forEach(({ quantidade, preco }) => {
+                total += quantidade * preco;
+            });
 
-        const mensagem = `
+            if (desconto > 0) {
+                total -= total * (desconto / 100);
+            }
+
+            total += tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80;
+
+            const mensagem = `
 Total de ${formatarMoeda(total)} já com o frete incluso (${tipoFreteFormatado})
 🔥 Garanta seu Cashback, nossa garantia é 100% gratuita! 🔥
 
@@ -217,13 +215,51 @@ ${produtosSelecionados.map(p => `${p.quantidade}x ${p.nome} ${formatarMoeda(p.qu
 Podemos fechar o seu pedido para você garantir seu Cashback? 🎁
         `.trim();
 
-        navigator.clipboard.writeText(mensagem).then(() => {
-            alert("Orçamento gerado e copiado para a área de transferência!");
-            document.querySelectorAll("input[type='number']").forEach(input => input.value = 0);
-        });
+            navigator.clipboard.writeText(mensagem).then(() => {
+                alert("Orçamento gerado e copiado para a área de transferência!");
+                resetarQuantidades(); // Resetar quantidades após gerar orçamento
+            });
+        } else {
+            alert("Selecione a quantidade correta de produtos (6, 7, 12 ou 16 produtos).");
+        }
     }
 });
 
+// Função para resetar as quantidades dos produtos
+function resetarQuantidades() {
+    document.querySelectorAll("input[type='number']").forEach(input => {
+        input.value = 0;
+    });
+}
+
+// Função para aplicar combo
+function aplicarCombo(produtosSelecionados) {
+    let totalProdutos = 0;
+    let produtosValidos = [];
+
+    produtosSelecionados.forEach(({ nome, quantidade }) => {
+        if (!produtosExcluidos.includes(nome)) {
+            totalProdutos += quantidade;
+            produtosValidos.push({ nome, quantidade });
+        }
+    });
+
+    for (const combo of combos) {
+        if (combo.condicao(totalProdutos)) {
+            return {
+                nome: combo.nome,
+                preco: combo.preco,
+                unidade: combo.unidade,
+                brindes: combo.brindes,
+                produtosValidos,
+                totalProdutos,
+                adicionais: combo.adicionais || [],
+            };
+        }
+    }
+
+    return null;
+}
+
 // Inicializar
-renderProdutos("injetaveis", "injetaveis");
-renderProdutos("orais", "orais");
+preencherProdutos();
