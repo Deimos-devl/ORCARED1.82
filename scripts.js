@@ -154,27 +154,29 @@ document.getElementById("gerar-orcamento").addEventListener("click", () => {
         }
     });
 
-    // Validar se a quantidade de produtos corresponde a um dos combos válidos no modo combo
-    let totalProdutos = produtosSelecionados.reduce((acc, produto) => acc + produto.quantidade, 0);
+    // Verificar se o modo é combo antes de validar a quantidade
     if (modoCombo) {
-        const comboAplicado = aplicarCombo(produtosSelecionados);
+        let totalProdutos = produtosSelecionados.reduce((acc, produto) => acc + produto.quantidade, 0);
 
-        if (comboAplicado) {
-            total = comboAplicado.preco;
+        if (totalProdutos === 6 || totalProdutos === 7 || totalProdutos === 12 || totalProdutos === 16) {
+            const comboAplicado = aplicarCombo(produtosSelecionados);
 
-            if (desconto > 0) {
-                total -= total * (desconto / 100);
-            }
+            if (comboAplicado) {
+                total = comboAplicado.preco;
 
-            const brindesMensagem = comboAplicado.brindes > 0
-                ? `+ ${comboAplicado.brindes} produtos de brinde 🎁`
-                : ''; // Remove a parte de brindes se for zero
+                if (desconto > 0) {
+                    total -= total * (desconto / 100);
+                }
 
-            const adicionaisMensagem = comboAplicado.adicionais && comboAplicado.adicionais.length > 0 
-                ? `+ ${comboAplicado.adicionais.join(", ")}`
-                : ''; // Só mostra os adicionais no Combo Diamante
+                const brindesMensagem = comboAplicado.brindes > 0
+                    ? `+ ${comboAplicado.brindes} produtos de brinde 🎁`
+                    : ''; // Remove a parte de brindes se for zero
 
-            const mensagem = `
+                const adicionaisMensagem = comboAplicado.adicionais && comboAplicado.adicionais.length > 0 
+                    ? `+ ${comboAplicado.adicionais.join(", ")}`
+                    : ''; // Só mostra os adicionais no Combo Diamante
+
+                const mensagem = `
 Total de ${formatarMoeda(total + (tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80))} já com o frete incluso (${tipoFreteFormatado})
 🔥 Nossa garantia é 100% gratuita! 🔥 ${comboAplicado.nome}
 
@@ -186,26 +188,29 @@ ${adicionaisMensagem}
 Podemos fechar o seu pedido para você garantir seu desconto? 🎁
             `.trim();
 
-            navigator.clipboard.writeText(mensagem).then(() => {
-                alert("Orçamento gerado e copiado para a área de transferência!");
-                resetarQuantidades(); // Resetar quantidades após gerar orçamento
-            });
+                navigator.clipboard.writeText(mensagem).then(() => {
+                    alert("Orçamento gerado e copiado para a área de transferência!");
+                    resetarQuantidades(); // Resetar quantidades após gerar orçamento
+                });
+            } else {
+                alert("Selecione a quantidade correta de produtos para um dos combos (6, 7, 12 ou 16 produtos).");
+            }
         } else {
             alert("Selecione a quantidade correta de produtos para um dos combos (6, 7, 12 ou 16 produtos).");
         }
     } else {
-        if (totalProdutos === 6 || totalProdutos === 7 || totalProdutos === 12 || totalProdutos === 16) {
-            produtosSelecionados.forEach(({ quantidade, preco }) => {
-                total += quantidade * preco;
-            });
+        // No modo valor normal, não há validação de quantidade
+        produtosSelecionados.forEach(({ quantidade, preco }) => {
+            total += quantidade * preco;
+        });
 
-            if (desconto > 0) {
-                total -= total * (desconto / 100);
-            }
+        if (desconto > 0) {
+            total -= total * (desconto / 100);
+        }
 
-            total += tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80;
+        total += tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80;
 
-            const mensagem = `
+        const mensagem = `
 Total de ${formatarMoeda(total)} já com o frete incluso (${tipoFreteFormatado})
 🔥 Garanta seu Cashback, nossa garantia é 100% gratuita! 🔥
 
@@ -215,13 +220,10 @@ ${produtosSelecionados.map(p => `${p.quantidade}x ${p.nome} ${formatarMoeda(p.qu
 Podemos fechar o seu pedido para você garantir seu Cashback? 🎁
         `.trim();
 
-            navigator.clipboard.writeText(mensagem).then(() => {
-                alert("Orçamento gerado e copiado para a área de transferência!");
-                resetarQuantidades(); // Resetar quantidades após gerar orçamento
-            });
-        } else {
-            alert("Selecione a quantidade correta de produtos (6, 7, 12 ou 16 produtos).");
-        }
+        navigator.clipboard.writeText(mensagem).then(() => {
+            alert("Orçamento gerado e copiado para a área de transferência!");
+            resetarQuantidades(); // Resetar quantidades após gerar orçamento
+        });
     }
 });
 
