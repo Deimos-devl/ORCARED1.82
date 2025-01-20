@@ -55,7 +55,7 @@ function formatarMoeda(valor) {
 // Definição dos combos
 const combos = [
     {
-        nome: "Combo Aço 🛡️",
+        nome: "Combo Aço",
         preco: 457,
         unidade: 152.33,
         condicao: (quantidade) => quantidade === 3,
@@ -99,29 +99,37 @@ function preencherProdutos() {
     const injetaveisContainer = document.getElementById("injetaveis");
     const oraisContainer = document.getElementById("orais");
 
+    // Função para criar o HTML de cada produto
     function criarProduto(nome, preco, container) {
         const div = document.createElement("div");
         div.classList.add("produto");
-        div.innerHTML = `
-            <span>${nome}</span>
+        div.innerHTML = 
+            `<span>${nome}</span>
             <span>${formatarMoeda(preco)}</span>
             <div class="produto-controls">
                 <button class="btn-ajustar" onclick="ajustarQuantidade(this, -1)">-</button>
                 <input type="number" min="0" value="0">
                 <button class="btn-ajustar" onclick="ajustarQuantidade(this, 1)">+</button>
-            </div>
-        `;
+            </div>`;
         container.appendChild(div);
     }
 
-    Object.entries(produtos.injetaveis).forEach(([nome, preco]) => criarProduto(nome, preco, injetaveisContainer));
-    Object.entries(produtos.orais).forEach(([nome, preco]) => criarProduto(nome, preco, oraisContainer));
+    // Adiciona produtos injetáveis
+    Object.entries(produtos.injetaveis).forEach(([nome, preco]) => {
+        criarProduto(nome, preco, injetaveisContainer);
+    });
+
+    // Adiciona produtos orais
+    Object.entries(produtos.orais).forEach(([nome, preco]) => {
+        criarProduto(nome, preco, oraisContainer);
+    });
 }
 
 // Ajustar quantidade
 function ajustarQuantidade(button, delta) {
     const input = button.parentElement.querySelector("input");
-    input.value = Math.max(0, parseInt(input.value) + delta);
+    const novaQuantidade = Math.max(0, parseInt(input.value) + delta);
+    input.value = novaQuantidade;
 }
 
 // Gerenciar desconto
@@ -141,6 +149,8 @@ document.getElementById("gerar-orcamento").addEventListener("click", () => {
     const modoCombo = document.querySelector("input[name='modo']:checked").value === "combo";
     const desconto = parseFloat(inputDesconto.value) || 0;
 
+    const tipoFreteFormatado = tipoFrete.includes("Sedex") ? "Sedex" : tipoFrete;
+
     document.querySelectorAll("#injetaveis .produto, #orais .produto").forEach((div) => {
         const quantidade = parseInt(div.querySelector("input").value);
         if (quantidade > 0) {
@@ -150,36 +160,69 @@ document.getElementById("gerar-orcamento").addEventListener("click", () => {
         }
     });
 
+    // Verificar se o modo é combo antes de validar a quantidade
     if (modoCombo) {
+        let totalProdutos = produtosSelecionados.reduce((acc, produto) => acc + produto.quantidade, 0);
+
         const comboAplicado = aplicarCombo(produtosSelecionados);
 
         if (comboAplicado) {
             total = comboAplicado.preco;
 
-            if (desconto > 0) total -= total * (desconto / 100);
+            if (desconto > 0) {
+                total -= total * (desconto / 100);
+            }
 
-            const brindesMensagem = comboAplicado.brindes > 0 ? `\n+ ${comboAplicado.brindes} produtos de brinde 🎁` : '';
-            const adicionaisMensagem = comboAplicado.adicionais && comboAplicado.adicionais.length > 0
-                ? `\n+ ${comboAplicado.adicionais.join(", ")}`
-                : '';
+            const brindesMensagem = comboAplicado.brindes > 0
+                ? `+ ${comboAplicado.brindes} produtos de brinde 🎁`
+                : ""; // Remove a parte de brindes se for zero
 
-            const mensagem = `
-Total de ${formatarMoeda(total + (tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : 80))} já com o frete incluso (${tipoFrete})
-🔥 Nossa garantia é 100% gratuita! 🔥 ${comboAplicado.nome}
+            const adicionaisMensagem = comboAplicado.adicionais && comboAplicado.adicionais.length > 0 
+                ? `+ ${comboAplicado.adicionais.join(", ")}`
+                : ""; // Só mostra os adicionais no Combo Diamante
 
-Seu novo pedido será 📦:
-${comboAplicado.produtosValidos.map(p => `${p.quantidade}x ${p.nome}`).join("\n")}${brindesMensagem}${adicionaisMensagem}
-
-Podemos fechar o seu pedido para você garantir seu desconto? 🎁
-            `.trim();
+            const mensagem = [
+                `Total de ${formatarMoeda(total + (tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80))} já com o frete incluso (${tipoFreteFormatado})`,
+                `🔥 Nossa garantia é 100% gratuita! 🔥 ${comboAplicado.nome}`,
+                `Seu novo pedido será 📦:`,
+                `${comboAplicado.produtosValidos.map(p => `${p.quantidade}x ${p.nome}`).join("\n")}`,
+                brindesMensagem,
+                adicionaisMensagem,
+                "\nPodemos fechar o seu pedido para você garantir seu desconto? 🎁"
+            ].filter(linha => linha.trim()).join("\n");
 
             navigator.clipboard.writeText(mensagem).then(() => {
                 alert("Orçamento gerado e copiado para a área de transferência!");
-                resetarQuantidades();
+                resetarQuantidades(); // Resetar quantidades após gerar orçamento
             });
         } else {
-            alert("Selecione a quantidade correta de produtos para um dos combos (3, 6, 7, 12 ou 16 produtos).");
+            alert("Selecione a quantidade correta de produtos para um dos combos (3, 6, 7, 12 ou 16 produtos).\n");
         }
+    } else {
+        // No modo valor normal, não há validação de quantidade
+        produtosSelecionados.forEach(({ quantidade, preco }) => {
+            total += quantidade * preco;
+        });
+
+        if (desconto > 0) {
+            total -= total * (desconto / 100);
+        }
+
+        total += tipoFrete === "PAC" ? 40 : tipoFrete === "Sedex" ? 55 : tipoFrete === "Sedex-" ? 65 : 80;
+
+        const mensagem = 
+`Total de ${formatarMoeda(total)} já com o frete incluso (${tipoFreteFormatado})
+🔥 Garanta seu Cashback, nossa garantia é 100% gratuita! 🔥
+
+Seu novo pedido será 📦:
+${produtosSelecionados.map(p => `${p.quantidade}x ${p.nome} ${formatarMoeda(p.quantidade * p.preco)}`).join("\n")}
+
+Podemos fechar o seu pedido para você garantir seu Cashback? 🎁`;
+
+        navigator.clipboard.writeText(mensagem).then(() => {
+            alert("Orçamento gerado e copiado para a área de transferência!");
+            resetarQuantidades(); // Resetar quantidades após gerar orçamento
+        });
     }
 });
 
@@ -210,6 +253,7 @@ function aplicarCombo(produtosSelecionados) {
                 unidade: combo.unidade,
                 brindes: combo.brindes,
                 produtosValidos,
+                totalProdutos,
                 adicionais: combo.adicionais || [],
             };
         }
